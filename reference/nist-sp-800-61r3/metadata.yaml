@@ -1,0 +1,18 @@
+source_id: nist-sp-800-61r3
+title: "Computer Security Incident Handling Guide"
+author: "NIST"
+version: "Revision 3"
+publication_date: "2024-04-01"
+url: "https://csrc.nist.gov/publications/detail/sp/800-61/rev-3/final"
+date_retrieved: "2025-02-09"
+description: "Primary NIST framework for incident response procedures. Provides structured guidance on preparation, detection, containment, eradication, recovery, and post-incident activities."
+excerpts:
+  - filename: "section-3.3-containment.md"
+    section: "3.3"
+    title: "Containment Strategy"
+  - filename: "section-3.4-eradication.md"
+    section: "3.4"
+    title: "Evidence Gathering and Eradication"
+  - filename: "section-3.5-recovery.md"
+    section: "3.5"
+    title: "Recovery"

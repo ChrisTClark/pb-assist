@@ -1,0 +1,43 @@
+page:
+  size: letter
+  margins:
+    top: 1.0
+    bottom: 1.0
+    left: 1.25
+    right: 1.25
+
+fonts:
+  heading: "Calibri"
+  body: "Calibri"
+  code: "Consolas"
+
+sizes:
+  h1: 18
+  h2: 14
+  h3: 12
+  body: 11
+  footer: 9
+
+spacing:
+  after_heading: 6
+  after_paragraph: 6
+  line_spacing: 1.15
+
+header:
+  enabled: true
+  text: "{playbook_title}"
+  alignment: right
+
+footer:
+  enabled: true
+  text: "{playbook_title} — v{version} — {classification}"
+  page_numbers: true
+  alignment: center
+
+front_matter:
+  title_page: true
+  version_table: true
+  table_of_contents: true
+  revision_history: true
+
+classification: "INTERNAL USE ONLY"

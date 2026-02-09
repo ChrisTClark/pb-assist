@@ -1,0 +1,8 @@
+heading_hierarchy:
+  h1: "Section Title"
+  h2: "Subsection"
+  h3: "Procedure Step"
+  h4: "Detail"
+
+numbering: true
+toc_depth: 3

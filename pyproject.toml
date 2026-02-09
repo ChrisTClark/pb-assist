@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "pb-assist"
+version = "1.0.0"
+description = "AI-augmented playbook development system"
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.1",
+    "ruamel.yaml>=0.18",
+    "python-docx>=1.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-tmp-files>=0.0.2",
+]
+
+[project.scripts]
+pb = "pb_assist.cli:cli"
+
+[tool.setuptools.packages.find]
+include = ["pb_assist*"]

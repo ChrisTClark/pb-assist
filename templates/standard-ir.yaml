@@ -1,0 +1,106 @@
+template_id: standard-ir
+title: "Standard Incident Response Playbook"
+description: "14-section IR playbook following NIST 800-61r3 structure"
+version: "1.0"
+
+sections:
+  - id: purpose
+    title: "Purpose"
+    order: 1
+    required: true
+    description: "Why this playbook exists and what it covers"
+
+  - id: scope
+    title: "Scope"
+    order: 2
+    required: true
+    description: "What threats, systems, and environments are in scope"
+
+  - id: roles
+    title: "Roles and Responsibilities"
+    order: 3
+    required: true
+    description: "Who does what during an incident"
+
+  - id: definitions
+    title: "Definitions and Severity Levels"
+    order: 4
+    required: true
+    description: "Key terms, incident severity classification"
+
+  - id: preparation
+    title: "Preparation"
+    order: 5
+    required: true
+    description: "Pre-incident readiness activities"
+
+  - id: detection
+    title: "Detection and Analysis"
+    order: 6
+    required: true
+    description: "How the threat is identified and confirmed"
+
+  - id: containment
+    title: "Containment"
+    order: 7
+    required: true
+    description: "Immediate and long-term containment actions"
+
+  - id: eradication
+    title: "Eradication"
+    order: 8
+    required: true
+    description: "Removing the threat from the environment"
+
+  - id: recovery
+    title: "Recovery"
+    order: 9
+    required: true
+    description: "Restoring systems and validating normal operations"
+
+  - id: post-incident
+    title: "Post-Incident Activity"
+    order: 10
+    required: true
+    description: "Lessons learned, report writing, process improvement"
+
+  - id: communication
+    title: "Communication Plan"
+    order: 11
+    required: true
+    description: "Internal and external communication procedures and templates"
+
+  - id: escalation
+    title: "Escalation Procedures"
+    order: 12
+    required: true
+    description: "When and how to escalate, including regulatory notification"
+
+  - id: references
+    title: "References"
+    order: 13
+    required: true
+    description: "All cited industry standards and sources (auto-generated from ref-index)"
+
+  - id: appendices
+    title: "Appendices"
+    order: 14
+    required: false
+    description: "Checklists, contact lists, network diagrams, etc."
+
+appendices_structure:
+  - id: checklist
+    title: "Appendix A: Incident Response Checklist"
+    format: checklist
+  - id: contacts
+    title: "Appendix B: Key Contacts and Escalation Matrix"
+    format: table
+  - id: network
+    title: "Appendix C: Network Architecture Reference"
+    format: freeform
+  - id: evidence
+    title: "Appendix D: Evidence Collection Procedures"
+    format: numbered-steps
+  - id: regulatory
+    title: "Appendix E: Regulatory Notification Requirements"
+    format: table

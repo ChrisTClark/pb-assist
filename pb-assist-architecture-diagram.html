@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PB-ASSIST v1.0 — AI-Augmented Playbook Development System</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #06090f;
+  --surface: #0c1119;
+  --surface2: #111923;
+  --border: #1c2a3a;
+  --border-bright: #2a3f55;
+  --text: #c8d6e5;
+  --text-dim: #5a7089;
+  --text-bright: #e8f0f8;
+  --accent-audit: #f72585;
+  --accent-content: #4cc9f0;
+  --accent-output: #7b61ff;
+  --accent-ai: #fca311;
+  --accent-green: #06d6a0;
+  --accent-ref: #00b4d8;
+  --accent-red: #ef476f;
+  --glow-audit: rgba(247, 37, 133, 0.15);
+  --glow-content: rgba(76, 201, 240, 0.15);
+  --glow-output: rgba(123, 97, 255, 0.15);
+  --glow-ai: rgba(252, 163, 17, 0.15);
+  --glow-ref: rgba(0, 180, 216, 0.15);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(123,97,255,0.04), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 70%, rgba(6,214,160,0.03), transparent),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(252,163,17,0.02), transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Header ── */
+.header {
+  text-align: center;
+  margin-bottom: 56px;
+}
+.header .tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7em;
+  font-weight: 500;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent-output);
+  border: 1px solid rgba(123,97,255,0.3);
+  padding: 6px 18px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  background: rgba(123,97,255,0.05);
+}
+.header h1 {
+  font-size: 2.4em;
+  font-weight: 700;
+  color: var(--text-bright);
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+}
+.header .subtitle {
+  font-size: 1.05em;
+  color: var(--text-dim);
+  font-weight: 400;
+  max-width: 740px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ── Section titles ── */
+.section-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72em;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-title .line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Pitch Section ── */
+.pitch-section {
+  margin-bottom: 56px;
+}
+.pitch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 900px) { .pitch-grid { grid-template-columns: 1fr; } }
+.pitch-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 24px;
+  transition: border-color 0.3s, transform 0.2s;
+}
+.pitch-card:hover { transform: translateY(-2px); }
+.pitch-icon { font-size: 1.6em; margin-bottom: 12px; }
+.pitch-card h3 { font-size: 1.1em; font-weight: 600; color: var(--text-bright); margin-bottom: 10px; }
+.pitch-card p { font-size: 0.88em; color: var(--text-dim); line-height: 1.65; }
+.pitch-card p strong { color: var(--text); font-weight: 600; }
+.pitch-problem { border-color: rgba(239,71,111,0.25); }
+.pitch-problem:hover { border-color: rgba(239,71,111,0.5); }
+.pitch-solution { border-color: rgba(6,214,160,0.25); }
+.pitch-solution:hover { border-color: rgba(6,214,160,0.5); }
+.pitch-difference { border-color: rgba(123,97,255,0.25); }
+.pitch-difference:hover { border-color: rgba(123,97,255,0.5); }
+
+/* ── Legend ── */
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 48px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82em;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+.legend-dot.audit { background: var(--accent-audit); box-shadow: 0 0 8px var(--glow-audit); }
+.legend-dot.content { background: var(--accent-content); box-shadow: 0 0 8px var(--glow-content); }
+.legend-dot.output { background: var(--accent-output); box-shadow: 0 0 8px var(--glow-output); }
+.legend-dot.ai { background: var(--accent-ai); box-shadow: 0 0 8px var(--glow-ai); }
+.legend-dot.ref { background: var(--accent-green); box-shadow: 0 0 8px rgba(6,214,160,0.15); }
+
+/* ── Architecture Cards ── */
+.arch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 48px;
+}
+@media (max-width: 900px) { .arch-grid { grid-template-columns: 1fr; } }
+
+.arch-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s, transform 0.2s;
+}
+.arch-card:hover { transform: translateY(-2px); }
+.arch-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.arch-card.audit-card { border-color: rgba(247,37,133,0.2); }
+.arch-card.audit-card:hover { border-color: rgba(247,37,133,0.5); }
+.arch-card.audit-card::before { background: linear-gradient(90deg, var(--accent-audit), transparent); }
+.arch-card.content-card { border-color: rgba(76,201,240,0.2); }
+.arch-card.content-card:hover { border-color: rgba(76,201,240,0.5); }
+.arch-card.content-card::before { background: linear-gradient(90deg, var(--accent-content), transparent); }
+.arch-card.output-card { border-color: rgba(123,97,255,0.2); }
+.arch-card.output-card:hover { border-color: rgba(123,97,255,0.5); }
+.arch-card.output-card::before { background: linear-gradient(90deg, var(--accent-output), transparent); }
+
+.arch-card .card-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65em;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.audit-card .card-label { color: var(--accent-audit); }
+.content-card .card-label { color: var(--accent-content); }
+.output-card .card-label { color: var(--accent-output); }
+
+.arch-card h3 { font-size: 1.15em; font-weight: 600; color: var(--text-bright); margin-bottom: 8px; }
+.arch-card p { font-size: 0.88em; color: var(--text-dim); line-height: 1.55; margin-bottom: 14px; }
+.arch-card .properties { display: flex; flex-wrap: wrap; gap: 6px; }
+.prop-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68em;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.audit-card .prop-tag { background: rgba(247,37,133,0.1); color: var(--accent-audit); border: 1px solid rgba(247,37,133,0.2); }
+.content-card .prop-tag { background: rgba(76,201,240,0.1); color: var(--accent-content); border: 1px solid rgba(76,201,240,0.2); }
+.output-card .prop-tag { background: rgba(123,97,255,0.1); color: var(--accent-output); border: 1px solid rgba(123,97,255,0.2); }
+
+/* ── Flow Diagram (SVG) ── */
+.flow-section { margin-bottom: 48px; }
+.flow-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  overflow-x: auto;
+}
+.flow-container svg { width: 100%; height: auto; min-width: 800px; }
+
+/* ── SVG styles ── */
+.node-box { rx: 8; ry: 8; }
+.node-text {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  fill: #e8f0f8;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.node-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 400;
+  font-size: 10px;
+  fill: #5a7089;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.flow-path {
+  fill: none;
+  stroke-width: 2;
+  stroke-dasharray: 8 4;
+  animation: flowDash 1.5s linear infinite;
+}
+@keyframes flowDash { to { stroke-dashoffset: -24; } }
+.flow-path-solid { fill: none; stroke-width: 2; }
+.flow-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  font-weight: 500;
+  text-anchor: middle;
+}
+.zone-rect { rx: 12; ry: 12; }
+.zone-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.airgap-line {
+  stroke: var(--accent-ai);
+  stroke-width: 2;
+  stroke-dasharray: 6 6;
+  opacity: 0.35;
+}
+.airgap-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--accent-ai);
+  text-anchor: middle;
+  letter-spacing: 2px;
+  opacity: 0.7;
+}
+@keyframes auditPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.pulse-audit { animation: auditPulse 3s ease-in-out infinite; }
+
+/* ── Workflow Section ── */
+.workflow-section { margin-bottom: 48px; }
+.workflow-container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  overflow-x: auto;
+}
+.workflow-container svg { width: 100%; height: auto; min-width: 800px; }
+
+/* ── CLI Command Section ── */
+.cli-section { margin-bottom: 56px; }
+.cli-hero {
+  background: var(--surface);
+  border: 1px solid rgba(6,214,160,0.25);
+  border-radius: 16px;
+  padding: 36px 40px;
+  position: relative;
+  overflow: hidden;
+}
+.cli-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #06d6a0, rgba(6,214,160,0.1));
+}
+.cli-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  align-items: start;
+}
+@media (max-width: 900px) { .cli-hero-grid { grid-template-columns: 1fr; } }
+
+.cli-narrative h3 { font-size: 1.25em; font-weight: 700; color: var(--text-bright); margin-bottom: 14px; }
+.cli-narrative h3 span { color: #06d6a0; }
+.cli-narrative p { font-size: 0.9em; color: var(--text-dim); line-height: 1.7; margin-bottom: 14px; }
+.cli-narrative p strong { color: var(--text); }
+
+.cli-flow-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  padding: 14px 16px;
+  background: rgba(6,214,160,0.04);
+  border: 1px solid rgba(6,214,160,0.12);
+  border-radius: 10px;
+}
+.cli-flow-step {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76em;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.cli-flow-step.research { background: rgba(252,163,17,0.12); color: #fca311; border: 1px solid rgba(252,163,17,0.2); }
+.cli-flow-step.human { background: rgba(6,214,160,0.12); color: #06d6a0; border: 1px solid rgba(6,214,160,0.2); }
+.cli-flow-step.command { background: rgba(232,240,248,0.08); color: var(--text-bright); border: 1px solid rgba(232,240,248,0.15); }
+.cli-flow-step.logged { background: rgba(247,37,133,0.12); color: #f72585; border: 1px solid rgba(247,37,133,0.2); }
+.cli-flow-step.output { background: rgba(123,97,255,0.12); color: #7b61ff; border: 1px solid rgba(123,97,255,0.2); }
+.cli-flow-arrow { color: var(--text-dim); font-size: 0.85em; padding: 0 2px; }
+
+.cli-terminal {
+  background: #080c12;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.cli-terminal-bar {
+  background: #111923;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.cli-terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+.cli-terminal-dot.r { background: #ef476f; }
+.cli-terminal-dot.y { background: #fca311; }
+.cli-terminal-dot.g { background: #06d6a0; }
+.cli-terminal-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72em;
+  color: var(--text-dim);
+  margin-left: 8px;
+}
+.cli-terminal-body {
+  padding: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78em;
+  line-height: 2;
+}
+.cli-line { display: flex; flex-wrap: wrap; }
+.cli-prompt { color: #06d6a0; margin-right: 8px; user-select: none; }
+.cli-cmd { color: var(--text-bright); }
+.cli-comment { color: #5a7089; font-size: 0.92em; font-style: italic; margin-left: 4px; }
+.cli-output { color: #5a7089; padding-left: 22px; }
+
+/* ── File Tree ── */
+.tree-section { margin-bottom: 48px; }
+.tree-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 900px) { .tree-grid { grid-template-columns: 1fr; } }
+
+.tree-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+.tree-panel h4 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78em;
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tree-panel.audit-panel h4 { color: var(--accent-audit); }
+.tree-panel.content-panel h4 { color: var(--accent-content); }
+.tree-panel.output-panel h4 { color: var(--accent-output); }
+.tree-panel.ai-panel h4 { color: var(--accent-ai); }
+.tree-panel.ref-panel h4 { color: var(--accent-green); }
+.tree-panel.template-panel h4 { color: var(--accent-ref); }
+
+.tree-item {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78em;
+  padding: 5px 0;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid rgba(28,42,58,0.5);
+}
+.tree-item:last-child { border-bottom: none; }
+.tree-item .icon { font-size: 0.9em; width: 18px; text-align: center; }
+.tree-item .fname { color: var(--text); }
+.tree-item .desc { color: var(--text-dim); font-size: 0.9em; margin-left: auto; }
+
+/* ── Playbook Examples ── */
+.playbook-examples { margin-bottom: 48px; }
+.playbook-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+.playbook-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  transition: border-color 0.3s, transform 0.2s;
+}
+.playbook-item:hover { transform: translateY(-2px); border-color: var(--accent-output); }
+.playbook-item .pb-icon { font-size: 1.3em; margin-bottom: 8px; }
+.playbook-item h4 { font-size: 0.92em; font-weight: 600; color: var(--text-bright); margin-bottom: 4px; }
+.playbook-item p { font-size: 0.78em; color: var(--text-dim); line-height: 1.5; }
+
+/* ── Principles ── */
+.principles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 48px;
+}
+.principle {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+}
+.principle .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7em;
+  font-weight: 700;
+  color: var(--accent-green);
+  margin-bottom: 6px;
+}
+.principle h4 { font-size: 0.95em; font-weight: 600; color: var(--text-bright); margin-bottom: 6px; }
+.principle p { font-size: 0.82em; color: var(--text-dim); line-height: 1.5; }
+
+/* ── Workspace Section ── */
+.workspace-section { margin-bottom: 56px; }
+.workspace-hero {
+  background: var(--surface);
+  border: 1px solid rgba(0,180,216,0.25);
+  border-radius: 16px;
+  padding: 36px 40px;
+  position: relative;
+  overflow: hidden;
+}
+.workspace-hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #00b4d8, rgba(0,180,216,0.1));
+}
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  align-items: start;
+}
+@media (max-width: 900px) { .workspace-grid { grid-template-columns: 1fr; } }
+.workspace-narrative h3 { font-size: 1.25em; font-weight: 700; color: var(--text-bright); margin-bottom: 14px; }
+.workspace-narrative h3 span { color: #00b4d8; }
+.workspace-narrative p { font-size: 0.9em; color: var(--text-dim); line-height: 1.7; margin-bottom: 14px; }
+.workspace-narrative p strong { color: var(--text); }
+
+.workspace-diagram {
+  background: #080c12;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  overflow-x: auto;
+}
+.workspace-diagram svg { width: 100%; height: auto; }
+
+.workspace-key-point {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(0,180,216,0.04);
+  border: 1px solid rgba(0,180,216,0.12);
+  border-radius: 8px;
+  font-size: 0.82em;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+.workspace-key-point strong { color: #00b4d8; font-weight: 600; }
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 32px 0;
+  color: var(--text-dim);
+  font-size: 0.78em;
+  font-family: 'JetBrains Mono', monospace;
+  border-top: 1px solid var(--border);
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- Header -->
+<div class="header">
+  <div class="tag">System Architecture</div>
+  <h1>PB-ASSIST v1.0</h1>
+  <p class="subtitle">AI-augmented playbook development — build consistent, auditable, regulation-ready incident response playbooks backed by industry standards and expert review.</p>
+</div>
+
+<!-- Pitch Section -->
+<div class="pitch-section">
+  <div class="pitch-grid">
+    <div class="pitch-card pitch-problem">
+      <div class="pitch-icon">📋</div>
+      <h3>The Problem</h3>
+      <p>IR playbooks are critical documents that teams depend on in their worst moments — yet they're often written in isolation, inconsistently structured, loosely sourced, and out of date within months. When regulators ask <em>"show me your ransomware playbook and the standards it's based on,"</em> the answer shouldn't require archaeology.</p>
+    </div>
+    <div class="pitch-card pitch-solution">
+      <div class="pitch-icon">🏗️</div>
+      <h3>What PB-ASSIST Does</h3>
+      <p>PB-ASSIST is a <strong>structured authoring system</strong> for IR playbooks. It enforces consistent templates, tracks every revision, cites industry references (NIST, Mandiant, SANS, IANS) at the section level, and uses AI to draft and research — while keeping a human author in control of every word that makes it into the final document.</p>
+    </div>
+    <div class="pitch-card pitch-difference">
+      <div class="pitch-icon">🔗</div>
+      <h3>How It Fits the Ecosystem</h3>
+      <p>PB-ASSIST produces the <strong>plans</strong>. IR-ASSIST executes and coordinates from those plans during a live incident. Platforms like Cortex AgentiX automate the machine-speed actions. Together: PB-ASSIST writes the doctrine, IR-ASSIST commands the response, and AgentiX handles the automated execution — each with a clear, auditable role.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Workflow Diagram -->
+<div class="section-title"><span class="line"></span>PLAYBOOK DEVELOPMENT LIFECYCLE<span class="line"></span></div>
+<div class="workflow-section">
+  <div class="workflow-container">
+    <svg viewBox="0 0 1100 340" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="wf-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#06d6a0" stroke-width="1.5"/>
+        </marker>
+        <marker id="wf-arrow-gold" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#fca311" stroke-width="1.5"/>
+        </marker>
+      </defs>
+
+      <!-- Step 1: Scope -->
+      <rect x="20" y="50" width="155" height="80" rx="10" fill="#100e1e" stroke="#7b61ff" stroke-width="2"/>
+      <text x="98" y="76" text-anchor="middle" font-family="DM Sans" font-size="13" font-weight="600" fill="#7b61ff">📐 Scope Playbook</text>
+      <text x="98" y="96" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#5a7089">Define threat type,</text>
+      <text x="98" y="110" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#5a7089">audience, objectives</text>
+
+      <path d="M175,90 L208,90" fill="none" stroke="#06d6a0" stroke-width="2" marker-end="url(#wf-arrow)"/>
+
+      <!-- Step 2: Research -->
+      <rect x="213" y="50" width="155" height="80" rx="10" fill="#0f1a1a" stroke="#06d6a0" stroke-width="2"/>
+      <text x="291" y="76" text-anchor="middle" font-family="DM Sans" font-size="13" font-weight="600" fill="#06d6a0">📚 Pull References</text>
+      <text x="291" y="96" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#5a7089">NIST, Mandiant, SANS,</text>
+      <text x="291" y="110" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#5a7089">IANS mapped to sections</text>
+
+      <path d="M368,90 L401,90" fill="none" stroke="#06d6a0" stroke-width="2" marker-end="url(#wf-arrow)"/>
+
+      <!-- Step 3: AI Draft -->
+      <rect x="406" y="50" width="155" height="80" rx="10" fill="#1e1800" stroke="#fca311" stroke-width="2"/>
+      <text x="484" y="76" text-anchor="middle" font-family="DM Sans" font-size="13" font-weight="600" fill="#fca311">🤖 AI Drafts Sections</text>
+      <text x="484" y="96" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#5a7089">Generates content from</text>
+      <text x="484" y="110" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#5a7089">references + template</text>
+
+      <path d="M561,90 L594,90" fill="none" stroke="#06d6a0" stroke-width="2" marker-end="url(#wf-arrow)"/>
+
+      <!-- Step 4: Human Reviews -->
+      <rect x="599" y="50" width="155" height="80" rx="10" fill="rgba(252,163,17,0.08)" stroke="#fca311" stroke-width="2" stroke-dasharray="6 3"/>
+      <text x="677" y="76" text-anchor="middle" font-family="DM Sans" font-size="13" font-weight="700" fill="#fca311">👤 Author Reviews</text>
+      <text x="677" y="96" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#5a7089">Edits, approves, or</text>
+      <text x="677" y="110" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#5a7089">rejects AI-drafted content</text>
+
+      <path d="M754,90 L787,90" fill="none" stroke="#06d6a0" stroke-width="2" marker-end="url(#wf-arrow)"/>
+
+      <!-- Step 5: Commit & Render -->
+      <rect x="792" y="50" width="155" height="80" rx="10" fill="#1a0a14" stroke="#f72585" stroke-width="2"/>
+      <text x="870" y="76" text-anchor="middle" font-family="DM Sans" font-size="13" font-weight="600" fill="#f72585">✅ Commit & Render</text>
+      <text x="870" y="96" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#5a7089">Revision logged, .docx</text>
+      <text x="870" y="110" text-anchor="middle" font-family="JetBrains Mono" font-size="9.5" fill="#5a7089">generated from template</text>
+
+      <!-- Feedback loop -->
+      <path d="M870,130 L870,210 Q 870,240 840,240 L160,240 Q 130,240 130,210 L130,135" fill="none" stroke="#06d6a0" stroke-width="2" stroke-dasharray="8 4" marker-end="url(#wf-arrow)"/>
+      <text x="500" y="260" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#06d6a0" font-weight="500">↻ iterate — refine sections, add references, update version until approved</text>
+
+      <!-- Version label -->
+      <rect x="375" y="178" width="250" height="28" rx="6" fill="rgba(123,97,255,0.06)" stroke="rgba(123,97,255,0.2)" stroke-width="1"/>
+      <text x="500" y="196" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#7b61ff" font-weight="500">each iteration increments the version record</text>
+    </svg>
+  </div>
+</div>
+
+<!-- Workspace & Registry -->
+<div class="section-title"><span class="line"></span>WORKSPACE — MANAGING MULTIPLE PLAYBOOKS<span class="line"></span></div>
+<div class="workspace-section">
+  <div class="workspace-hero">
+    <div class="workspace-grid">
+      <div class="workspace-narrative">
+        <h3>Each playbook is a <span>self-contained directory</span></h3>
+        <p>Every playbook lives in its own folder — revision log, content, references, outputs, all in one place. When you come back weeks later to update a playbook, you <strong>open it</strong> and the system rebuilds the current state from the revision history. There's no database to connect to, no session to resume. The files <em>are</em> the state.</p>
+        <p>A lightweight <strong>registry file</strong> at the workspace level tracks which playbooks exist and where they are. This is a convenience index — if it's ever lost, the system scans the playbook directories and regenerates it. The registry is derived, never authoritative.</p>
+        <p>You can copy a playbook folder to another machine, a USB drive, or a shared network path and <code>pb open</code> it there. Everything travels together.</p>
+
+        <div class="workspace-key-point">
+          <strong>Design principle:</strong> The playbook directory is the truth. The registry is just a table of contents. Delete the registry, scan the workspace, rebuild it — same result. Consistent with the IR-ASSIST philosophy: never depend on anything you can't regenerate.
+        </div>
+      </div>
+
+      <div class="workspace-diagram">
+        <svg viewBox="0 0 440 420" xmlns="http://www.w3.org/2000/svg">
+          <!-- Workspace root -->
+          <rect x="10" y="10" width="420" height="400" rx="12" fill="rgba(0,180,216,0.03)" stroke="rgba(0,180,216,0.15)" stroke-width="1"/>
+          <text x="30" y="35" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="#00b4d8" letter-spacing="1.5">pb-workspace/</text>
+
+          <!-- Registry -->
+          <rect x="30" y="50" width="190" height="40" rx="6" fill="#0e1525" stroke="#00b4d8" stroke-width="1.5"/>
+          <text x="125" y="67" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" font-weight="600" fill="#00b4d8">📋 registry.yaml</text>
+          <text x="125" y="81" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#5a7089">derived index — rebuildable</text>
+
+          <!-- Shared resources -->
+          <rect x="240" y="50" width="170" height="40" rx="6" fill="#0f1a1a" stroke="#06d6a0" stroke-width="1.5"/>
+          <text x="325" y="67" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" font-weight="600" fill="#06d6a0">📚 reference/</text>
+          <text x="325" y="81" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#5a7089">shared across all playbooks</text>
+
+          <!-- Templates -->
+          <rect x="240" y="100" width="170" height="40" rx="6" fill="#0e1525" stroke="#00b4d8" stroke-width="1"/>
+          <text x="325" y="117" text-anchor="middle" font-family="JetBrains Mono" font-size="10.5" font-weight="600" fill="#00b4d8">📐 templates/</text>
+          <text x="325" y="131" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#5a7089">shared structure definitions</text>
+
+          <!-- Playbook 1: Ransomware (expanded) -->
+          <rect x="30" y="155" width="380" height="105" rx="8" fill="rgba(123,97,255,0.04)" stroke="rgba(123,97,255,0.25)" stroke-width="1.5"/>
+          <text x="50" y="178" font-family="JetBrains Mono" font-size="10.5" font-weight="700" fill="#7b61ff">📁 ransomware-ir/</text>
+          <text x="290" y="178" font-family="JetBrains Mono" font-size="9" fill="#06d6a0">● ACTIVE</text>
+          
+          <rect x="50" y="192" width="78" height="24" rx="4" fill="rgba(247,37,133,0.08)" stroke="rgba(247,37,133,0.2)" stroke-width="1"/>
+          <text x="89" y="208" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#f72585">revisions/</text>
+          
+          <rect x="138" y="192" width="68" height="24" rx="4" fill="rgba(76,201,240,0.08)" stroke="rgba(76,201,240,0.2)" stroke-width="1"/>
+          <text x="172" y="208" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#4cc9f0">content/</text>
+          
+          <rect x="216" y="192" width="60" height="24" rx="4" fill="rgba(123,97,255,0.08)" stroke="rgba(123,97,255,0.2)" stroke-width="1"/>
+          <text x="246" y="208" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#7b61ff">output/</text>
+          
+          <rect x="286" y="192" width="80" height="24" rx="4" fill="rgba(252,163,17,0.08)" stroke="rgba(252,163,17,0.2)" stroke-width="1"/>
+          <text x="326" y="208" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" fill="#fca311">ai-exchange/</text>
+
+          <text x="50" y="242" font-family="JetBrains Mono" font-size="8.5" fill="#5a7089">v1.2 · 47 revisions · last updated 2025-01-15 · 6/14 sections approved</text>
+
+          <!-- Playbook 2: Cloud IR -->
+          <rect x="30" y="275" width="380" height="50" rx="8" fill="rgba(123,97,255,0.02)" stroke="rgba(123,97,255,0.12)" stroke-width="1"/>
+          <text x="50" y="298" font-family="JetBrains Mono" font-size="10.5" font-weight="700" fill="#7b61ff" opacity="0.7">📁 cloud-ir/</text>
+          <text x="290" y="298" font-family="JetBrains Mono" font-size="9" fill="#fca311">◐ IN PROGRESS</text>
+          <text x="50" y="314" font-family="JetBrains Mono" font-size="8.5" fill="#5a7089">v0.4 · 23 revisions · last updated 2025-02-01</text>
+
+          <!-- Playbook 3: IT Infiltrator -->
+          <rect x="30" y="335" width="380" height="50" rx="8" fill="rgba(123,97,255,0.02)" stroke="rgba(123,97,255,0.12)" stroke-width="1"/>
+          <text x="50" y="358" font-family="JetBrains Mono" font-size="10.5" font-weight="700" fill="#7b61ff" opacity="0.7">📁 it-infiltrator/</text>
+          <text x="290" y="358" font-family="JetBrains Mono" font-size="9" fill="#4cc9f0">✓ APPROVED v1.0</text>
+          <text x="50" y="374" font-family="JetBrains Mono" font-size="8.5" fill="#5a7089">v1.0 · 61 revisions · approved 2024-12-20</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CLI Section -->
+<div class="section-title"><span class="line"></span>THE COMMAND INTERFACE — AUTHORING FROM THE CLI<span class="line"></span></div>
+<div class="cli-section">
+  <div class="cli-hero">
+    <div class="cli-hero-grid">
+      <div class="cli-narrative">
+        <h3>Build playbooks with <span>deliberate commands</span></h3>
+        <p>Like IR-ASSIST, PB-ASSIST is driven from the command line. Every action — creating a playbook, opening an existing one, adding a section, citing a reference, committing a revision — is an explicit, typed command that gets logged. The AI suggests; the author decides; the CLI records.</p>
+        <p>This means you always know <strong>who wrote what, when, and based on which source</strong>. When an auditor reviews your playbook, the entire development history is traceable — from the first outline to the final approved version.</p>
+
+        <div class="cli-flow-strip">
+          <div class="cli-flow-step research">🤖 AI drafts section</div>
+          <span class="cli-flow-arrow">→</span>
+          <div class="cli-flow-step human">👤 Author edits</div>
+          <span class="cli-flow-arrow">→</span>
+          <div class="cli-flow-step command">⌨️ pb commit</div>
+          <span class="cli-flow-arrow">→</span>
+          <div class="cli-flow-step logged">📝 Revision logged</div>
+          <span class="cli-flow-arrow">→</span>
+          <div class="cli-flow-step output">📄 .docx rendered</div>
+        </div>
+      </div>
+
+      <div class="cli-terminal">
+        <div class="cli-terminal-bar">
+          <div class="cli-terminal-dot r"></div>
+          <div class="cli-terminal-dot y"></div>
+          <div class="cli-terminal-dot g"></div>
+          <span class="cli-terminal-title">pb-assist — workspace</span>
+        </div>
+        <div class="cli-terminal-body">
+          <div class="cli-line"><span class="cli-comment"># See all playbooks in the workspace</span></div>
+          <div class="cli-line"><span class="cli-prompt">❯</span><span class="cli-cmd">pb list</span></div>
+          <div class="cli-output">  ransomware-ir    v1.2  ◐ IN PROGRESS   updated 2025-01-15</div>
+          <div class="cli-output">  cloud-ir         v0.4  ◐ IN PROGRESS   updated 2025-02-01</div>
+          <div class="cli-output">  it-infiltrator   v1.0  ✓ APPROVED      approved 2024-12-20</div>
+
+          <div class="cli-line" style="margin-top:10px"><span class="cli-comment"># Open an existing playbook — rebuilds state from revision log</span></div>
+          <div class="cli-line"><span class="cli-prompt">❯</span><span class="cli-cmd">pb open ransomware-ir</span></div>
+          <div class="cli-output">✓ Loaded ransomware-ir/ — v1.2, 47 revisions, 6/14 sections approved</div>
+          <div class="cli-output">  State rebuilt from revisions/ in 0.3s</div>
+
+          <div class="cli-line" style="margin-top:10px"><span class="cli-comment"># Check status of all sections</span></div>
+          <div class="cli-line"><span class="cli-prompt">❯</span><span class="cli-cmd">pb status</span></div>
+          <div class="cli-output">  ✓ purpose           approved   v1.0   3 refs</div>
+          <div class="cli-output">  ✓ scope             approved   v1.0   2 refs</div>
+          <div class="cli-output">  ◐ containment       draft      v0.3   4 refs</div>
+          <div class="cli-output">  ○ eradication       empty      —      0 refs</div>
+          <div class="cli-output">  …</div>
+
+          <div class="cli-line" style="margin-top:10px"><span class="cli-comment"># Pick up where you left off — draft the next section</span></div>
+          <div class="cli-line"><span class="cli-prompt">❯</span><span class="cli-cmd">pb draft eradication --use-refs --context "financial services, PCI scope"</span></div>
+          <div class="cli-output">✓ AI draft written to drafts/eradication-v1.md (3 refs cited)</div>
+
+          <div class="cli-line" style="margin-top:10px"><span class="cli-comment"># Review, edit, commit, render — same cycle every time</span></div>
+          <div class="cli-line"><span class="cli-prompt">❯</span><span class="cli-cmd">pb commit eradication --msg "Initial eradication steps, reviewed by C. Kraft"</span></div>
+          <div class="cli-output">✓ Revision REV-048 committed — eradication v1.0</div>
+          <div class="cli-line"><span class="cli-prompt">❯</span><span class="cli-cmd">pb render --format docx</span></div>
+          <div class="cli-output">✓ output/Ransomware-IR-Playbook-v1.3.docx generated</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot audit"></div>Revision Log (Permanent)</div>
+  <div class="legend-item"><div class="legend-dot content"></div>Content (Current State)</div>
+  <div class="legend-item"><div class="legend-dot output"></div>Rendered Output (.docx)</div>
+  <div class="legend-item"><div class="legend-dot ai"></div>AI Advisory (Air Gap)</div>
+  <div class="legend-item"><div class="legend-dot ref"></div>Reference Library</div>
+</div>
+
+<!-- Three Layer Cards -->
+<div class="section-title"><span class="line"></span>THREE-LAYER DATA MODEL<span class="line"></span></div>
+<div class="arch-grid">
+  <div class="arch-card audit-card">
+    <div class="card-label">Layer 1 — Source of Truth</div>
+    <h3>Revision Log</h3>
+    <p>Every change to every playbook is permanently recorded — who changed what, when, and why. Like IR-ASSIST's audit log, entries are only ever added, never modified. This is your complete development history, ready for any audit or review.</p>
+    <div class="properties">
+      <span class="prop-tag">APPEND-ONLY</span>
+      <span class="prop-tag">TIMESTAMPED</span>
+      <span class="prop-tag">ATTRIBUTABLE</span>
+      <span class="prop-tag">SHA-256 VERIFIED</span>
+    </div>
+  </div>
+  <div class="arch-card content-card">
+    <div class="card-label">Layer 2 — Current State</div>
+    <h3>Playbook Content</h3>
+    <p>The current approved content of each playbook section — built by replaying the revision log. Each section tracks its status (draft, review, approved), linked references, and the author responsible. Delete and rebuild anytime from Layer 1.</p>
+    <div class="properties">
+      <span class="prop-tag">DERIVED</span>
+      <span class="prop-tag">REBUILDABLE</span>
+      <span class="prop-tag">SECTION-LEVEL STATUS</span>
+      <span class="prop-tag">REFERENCE-LINKED</span>
+    </div>
+  </div>
+  <div class="arch-card output-card">
+    <div class="card-label">Layer 3 — Final Deliverable</div>
+    <h3>Rendered Documents</h3>
+    <p>Polished Word documents generated from the current content using a consistent template — TOC, version history table, standardized headings, appendices, and reference list. Always regenerable. The .docx is a snapshot; the content layer is the living source.</p>
+    <div class="properties">
+      <span class="prop-tag">TEMPLATED</span>
+      <span class="prop-tag">.DOCX OUTPUT</span>
+      <span class="prop-tag">VERSION TABLE</span>
+      <span class="prop-tag">REGENERABLE</span>
+    </div>
+  </div>
+</div>
+
+<!-- Main Architecture SVG -->
+<div class="section-title"><span class="line"></span>DATA FLOW &amp; CONNECTIONS<span class="line"></span></div>
+<div class="flow-section">
+  <div class="flow-container">
+    <svg viewBox="0 0 1100 720" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow-audit" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#f72585" stroke-width="1.5"/>
+        </marker>
+        <marker id="arrow-content" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#4cc9f0" stroke-width="1.5"/>
+        </marker>
+        <marker id="arrow-output" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#7b61ff" stroke-width="1.5"/>
+        </marker>
+        <marker id="arrow-ai" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#fca311" stroke-width="1.5"/>
+        </marker>
+        <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#06d6a0" stroke-width="1.5"/>
+        </marker>
+        <filter id="glow-a"><feGaussianBlur stdDeviation="3" result="g"/><feMerge><feMergeNode in="g"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+
+      <!-- Zone: Controller -->
+      <rect class="zone-rect" x="30" y="15" width="700" height="100" fill="rgba(6,214,160,0.03)" stroke="rgba(6,214,160,0.15)"/>
+      <text class="zone-label" x="48" y="38" fill="#06d6a0" opacity="0.7">CONTROLLER LAYER (CLI &amp; WORKSPACE)</text>
+
+      <rect class="node-box" x="60" y="50" width="165" height="50" fill="#0f1f1a" stroke="#06d6a0" stroke-width="1.5"/>
+      <text class="node-text" x="143" y="68" font-size="13" fill="#06d6a0">CLI Interface</text>
+      <text class="node-sub" x="143" y="87">pb list · open · draft · commit</text>
+
+      <rect class="node-box" x="240" y="50" width="195" height="50" fill="#0f1f1a" stroke="#06d6a0" stroke-width="1.5"/>
+      <text class="node-text" x="338" y="68" font-size="13" fill="#06d6a0">pb_assist Python Library</text>
+      <text class="node-sub" x="338" y="87">playbook · section · reference · render</text>
+
+      <path d="M225,75 L235,75" class="flow-path-solid" stroke="#06d6a0" marker-end="url(#arrow-green)"/>
+
+      <!-- Registry -->
+      <rect class="node-box" x="450" y="50" width="130" height="50" fill="#0e1525" stroke="#00b4d8" stroke-width="1.5"/>
+      <text class="node-text" x="515" y="68" font-size="12" fill="#00b4d8">registry.yaml</text>
+      <text class="node-sub" x="515" y="87">derived · rebuildable</text>
+
+      <!-- Template Engine -->
+      <rect class="node-box" x="595" y="50" width="120" height="50" fill="#0e1525" stroke="#00b4d8" stroke-width="1"/>
+      <text class="node-text" x="655" y="68" font-size="12" fill="#00b4d8">Templates</text>
+      <text class="node-sub" x="655" y="87">structure · style · TOC</text>
+
+      <!-- Zone: Layer 1 - Revision Log -->
+      <rect class="zone-rect" x="30" y="140" width="700" height="155" fill="rgba(247,37,133,0.03)" stroke="rgba(247,37,133,0.15)"/>
+      <text class="zone-label" x="48" y="163" fill="#f72585" opacity="0.8">LAYER 1 — REVISION LOG (APPEND-ONLY)</text>
+
+      <rect class="node-box" x="60" y="180" width="155" height="42" fill="#1a0a14" stroke="#f72585" stroke-width="1.5" filter="url(#glow-a)" class="pulse-audit"/>
+      <text class="node-text" x="138" y="195" font-size="11.5" fill="#f72585">revisions.jsonl</text>
+      <text class="node-sub" x="138" y="212">all content changes</text>
+
+      <rect class="node-box" x="230" y="180" width="155" height="42" fill="#1a0a14" stroke="#f72585" stroke-width="1.5"/>
+      <text class="node-text" x="308" y="195" font-size="11.5" fill="#f72585">references.jsonl</text>
+      <text class="node-sub" x="308" y="212">source citations added</text>
+
+      <rect class="node-box" x="400" y="180" width="155" height="42" fill="#1a0a14" stroke="#f72585" stroke-width="1.5"/>
+      <text class="node-text" x="478" y="195" font-size="11.5" fill="#f72585">approvals.jsonl</text>
+      <text class="node-sub" x="478" y="212">section sign-offs</text>
+
+      <rect class="node-box" x="570" y="180" width="145" height="42" fill="#1a0a14" stroke="#f72585" stroke-width="1.5"/>
+      <text class="node-text" x="643" y="195" font-size="11.5" fill="#f72585">versions.jsonl</text>
+      <text class="node-sub" x="643" y="212">version milestones</text>
+
+      <rect class="node-box" x="60" y="238" width="175" height="42" fill="#1a0a14" stroke="#f72585" stroke-width="1.5"/>
+      <text class="node-text" x="148" y="253" font-size="11.5" fill="#f72585">ai-suggestions.jsonl</text>
+      <text class="node-sub" x="148" y="270">AI drafts submitted for review</text>
+
+      <!-- Append label -->
+      <rect x="300" y="250" width="265" height="22" fill="rgba(247,37,133,0.08)" rx="4"/>
+      <text class="flow-label" x="432" y="263" fill="#f72585" font-size="10">every action → permanent, timestamped log entry</text>
+
+      <!-- Arrow: Library → Revision Log -->
+      <path d="M338,100 L338,128 L340,128 L340,175" class="flow-path" stroke="#f72585" marker-end="url(#arrow-audit)"/>
+      <text class="flow-label" x="370" y="138" fill="#f72585">commit()</text>
+
+      <!-- Arrow: Registry → open/rebuild -->
+      <path d="M515,100 L515,128 L170,128 L170,175" class="flow-path" stroke="#00b4d8" stroke-dasharray="4 3" opacity="0.4"/>
+      <text class="flow-label" x="340" y="123" fill="#00b4d8">pb open → rebuild state from revisions/</text>
+
+      <!-- Zone: Layer 2 - Content -->
+      <rect class="zone-rect" x="30" y="315" width="700" height="115" fill="rgba(76,201,240,0.03)" stroke="rgba(76,201,240,0.15)"/>
+      <text class="zone-label" x="48" y="338" fill="#4cc9f0" opacity="0.8">LAYER 2 — PLAYBOOK CONTENT (CURRENT STATE)</text>
+
+      <rect class="node-box" x="60" y="355" width="220" height="50" fill="#0a151e" stroke="#4cc9f0" stroke-width="1.5"/>
+      <text class="node-text" x="170" y="373" font-size="12" fill="#4cc9f0">rebuild_content()</text>
+      <text class="node-sub" x="170" y="392">Replay revisions → current sections</text>
+
+      <rect class="node-box" x="340" y="355" width="120" height="50" fill="#0a151e" stroke="#4cc9f0" stroke-width="1"/>
+      <text class="node-text" x="400" y="373" font-size="11" fill="#4cc9f0">sections/</text>
+      <text class="node-sub" x="400" y="392">*.yaml content files</text>
+
+      <rect class="node-box" x="480" y="355" width="120" height="50" fill="#0a151e" stroke="#4cc9f0" stroke-width="1"/>
+      <text class="node-text" x="540" y="373" font-size="11" fill="#4cc9f0">metadata</text>
+      <text class="node-sub" x="540" y="392">status · refs · authors</text>
+
+      <!-- Arrow: Revision → Content -->
+      <path d="M170,290 L170,350" class="flow-path" stroke="#4cc9f0" marker-end="url(#arrow-content)"/>
+      <text class="flow-label" x="145" y="320" fill="#4cc9f0">replay</text>
+
+      <path d="M280,380 L335,380" class="flow-path-solid" stroke="#4cc9f0" marker-end="url(#arrow-content)"/>
+
+      <!-- Zone: Layer 3 - Output -->
+      <rect class="zone-rect" x="30" y="450" width="700" height="115" fill="rgba(123,97,255,0.03)" stroke="rgba(123,97,255,0.15)"/>
+      <text class="zone-label" x="48" y="473" fill="#7b61ff" opacity="0.8">LAYER 3 — RENDERED OUTPUT</text>
+
+      <rect class="node-box" x="60" y="488" width="190" height="55" fill="#100e1e" stroke="#7b61ff" stroke-width="1.5"/>
+      <text class="node-text" x="155" y="507" font-size="12" fill="#7b61ff">Word Document (.docx)</text>
+      <text class="node-sub" x="155" y="526">TOC · Version Table · Appendices</text>
+      <text class="node-sub" x="155" y="538">Consistent headings &amp; structure</text>
+
+      <rect class="node-box" x="270" y="488" width="170" height="55" fill="#100e1e" stroke="#7b61ff" stroke-width="1.5"/>
+      <text class="node-text" x="355" y="507" font-size="12" fill="#7b61ff">Reference Index</text>
+      <text class="node-sub" x="355" y="526">Appendix: all cited sources</text>
+      <text class="node-sub" x="355" y="538">with section, version, URL</text>
+
+      <rect class="node-box" x="460" y="488" width="160" height="55" fill="#100e1e" stroke="#7b61ff" stroke-width="1.5"/>
+      <text class="node-text" x="540" y="507" font-size="12" fill="#7b61ff">Version History</text>
+      <text class="node-sub" x="540" y="526">Auto-populated table</text>
+      <text class="node-sub" x="540" y="538">from revision log</text>
+
+      <!-- Arrow: Content → Outputs -->
+      <path d="M170,405 L155,483" class="flow-path" stroke="#7b61ff" marker-end="url(#arrow-output)"/>
+      <path d="M400,405 L355,483" class="flow-path" stroke="#7b61ff" marker-end="url(#arrow-output)"/>
+
+      <!-- ═══ AIR GAP ═══ -->
+      <line class="airgap-line" x1="765" y1="30" x2="765" y2="630"/>
+      <rect x="745" y="305" width="40" height="30" fill="var(--bg)" stroke="none"/>
+      <text class="airgap-label" x="765" y="317">A I R</text>
+      <text class="airgap-label" x="765" y="332">G A P</text>
+
+      <!-- Zone: AI Advisory -->
+      <rect class="zone-rect" x="800" y="140" width="270" height="370" fill="rgba(252,163,17,0.03)" stroke="rgba(252,163,17,0.15)"/>
+      <text class="zone-label" x="818" y="163" fill="#fca311" opacity="0.8">AI DRAFTING &amp; RESEARCH LAYER</text>
+
+      <rect class="node-box" x="830" y="190" width="210" height="55" fill="#1e1800" stroke="#fca311" stroke-width="1.5"/>
+      <text class="node-text" x="935" y="210" font-size="13" fill="#fca311">LLM (Gemini / Claude)</text>
+      <text class="node-sub" x="935" y="230">Draft · Research · Cite · Compare</text>
+
+      <rect class="node-box" x="830" y="270" width="210" height="45" fill="#1e1800" stroke="#fca311" stroke-width="1"/>
+      <text class="node-text" x="935" y="286" font-size="11" fill="#fca311">to-ai/</text>
+      <text class="node-sub" x="935" y="303">Section drafting requests + refs</text>
+
+      <rect class="node-box" x="830" y="330" width="210" height="45" fill="#1e1800" stroke="#fca311" stroke-width="1"/>
+      <text class="node-text" x="935" y="346" font-size="11" fill="#fca311">from-ai/</text>
+      <text class="node-sub" x="935" y="363">Drafted sections + citations</text>
+
+      <rect class="node-box" x="840" y="405" width="190" height="60" fill="rgba(252,163,17,0.08)" stroke="#fca311" stroke-width="2" stroke-dasharray="4 2"/>
+      <text class="node-text" x="935" y="425" font-size="13" fill="#fca311">👤 Author Reviews</text>
+      <text class="node-sub" x="935" y="445">Edits, approves, or rejects</text>
+      <text class="node-sub" x="935" y="457">AI-drafted content</text>
+
+      <!-- AI internal arrows -->
+      <path d="M935,315 L935,325" class="flow-path-solid" stroke="#fca311" marker-end="url(#arrow-ai)"/>
+      <path d="M935,375 L935,400" class="flow-path-solid" stroke="#fca311" marker-end="url(#arrow-ai)"/>
+
+      <!-- Cross air-gap arrows -->
+      <path d="M620,515 Q 710,470 825,290" class="flow-path" stroke="#fca311" marker-end="url(#arrow-ai)"/>
+      <text class="flow-label" x="730" y="410" fill="#fca311" transform="rotate(-40, 730, 410)">content → draft request</text>
+
+      <!-- from-ai to revision log -->
+      <path d="M840,435 Q 790,540 400,550 Q 200,550 170,540" class="flow-path" stroke="#06d6a0" marker-end="url(#arrow-green)"/>
+      <text class="flow-label" x="500" y="565" fill="#06d6a0">reviewed draft → committed to revision log</text>
+
+      <!-- Reference Library -->
+      <rect class="zone-rect" x="30" y="590" width="700" height="100" fill="rgba(6,214,160,0.03)" stroke="rgba(6,214,160,0.15)"/>
+      <text class="zone-label" x="48" y="613" fill="#06d6a0" opacity="0.8">REFERENCE LIBRARY (HYBRID — LOCAL EXCERPTS + EXTERNAL LINKS)</text>
+
+      <rect class="node-box" x="60" y="630" width="130" height="42" fill="#0f1a1a" stroke="#06d6a0" stroke-width="1.5"/>
+      <text class="node-text" x="125" y="645" font-size="11" fill="#06d6a0">NIST 800-61</text>
+      <text class="node-sub" x="125" y="662">SP 800-61r3</text>
+
+      <rect class="node-box" x="205" y="630" width="120" height="42" fill="#0f1a1a" stroke="#06d6a0" stroke-width="1.5"/>
+      <text class="node-text" x="265" y="645" font-size="11" fill="#06d6a0">Mandiant</text>
+      <text class="node-sub" x="265" y="662">IR guides</text>
+
+      <rect class="node-box" x="340" y="630" width="100" height="42" fill="#0f1a1a" stroke="#06d6a0" stroke-width="1.5"/>
+      <text class="node-text" x="390" y="645" font-size="11" fill="#06d6a0">SANS</text>
+      <text class="node-sub" x="390" y="662">IH procedures</text>
+
+      <rect class="node-box" x="455" y="630" width="100" height="42" fill="#0f1a1a" stroke="#06d6a0" stroke-width="1.5"/>
+      <text class="node-text" x="505" y="645" font-size="11" fill="#06d6a0">IANS</text>
+      <text class="node-sub" x="505" y="662">Research briefs</text>
+
+      <rect class="node-box" x="570" y="630" width="145" height="42" fill="#0f1a1a" stroke="#06d6a0" stroke-width="1"/>
+      <text class="node-text" x="643" y="645" font-size="11" fill="#06d6a0">Org Doctrine</text>
+      <text class="node-sub" x="643" y="662">Internal policies</text>
+
+      <!-- Arrow: Reference → AI layer -->
+      <path d="M400,625 Q 600,600 825,310" class="flow-path" stroke="#06d6a0" stroke-dasharray="4 3" opacity="0.5" marker-end="url(#arrow-green)"/>
+      <text class="flow-label" x="670" y="540" fill="#06d6a0" transform="rotate(-38, 670, 540)" opacity="0.7">references feed AI drafting</text>
+
+      <!-- Arrow: Reference → Content -->
+      <path d="M300,625 L300,410" class="flow-path" stroke="#06d6a0" stroke-dasharray="4 3" opacity="0.4"/>
+
+    </svg>
+  </div>
+</div>
+
+<!-- File Tree -->
+<div class="section-title"><span class="line"></span>WORKSPACE &amp; PLAYBOOK DIRECTORY STRUCTURE<span class="line"></span></div>
+<div class="tree-section">
+  <div class="tree-grid">
+    <div class="tree-panel template-panel">
+      <h4>🔷 pb-workspace/ — Top Level</h4>
+      <div class="tree-item"><span class="icon">📋</span><span class="fname">registry.yaml</span><span class="desc">Derived index of all playbooks</span></div>
+      <div class="tree-item"><span class="icon">📚</span><span class="fname">reference/</span><span class="desc">Shared reference library</span></div>
+      <div class="tree-item"><span class="icon">📐</span><span class="fname">templates/</span><span class="desc">Shared template definitions</span></div>
+      <div class="tree-item"><span class="icon">📁</span><span class="fname">ransomware-ir/</span><span class="desc">Self-contained playbook</span></div>
+      <div class="tree-item"><span class="icon">📁</span><span class="fname">cloud-ir/</span><span class="desc">Self-contained playbook</span></div>
+      <div class="tree-item"><span class="icon">📁</span><span class="fname">it-infiltrator/</span><span class="desc">Self-contained playbook</span></div>
+      <div style="margin-top:12px;padding:10px;background:rgba(0,180,216,0.05);border-radius:6px;font-size:0.78em;color:var(--accent-ref);font-family:'JetBrains Mono',monospace;line-height:1.6">
+        registry.yaml is rebuildable — scan directories → regenerate<br/>
+        reference/ and templates/ are shared across all playbooks
+      </div>
+    </div>
+    <div class="tree-panel audit-panel">
+      <h4>🔴 ransomware-ir/revisions/ — Permanent History</h4>
+      <div class="tree-item"><span class="icon">📄</span><span class="fname">revisions.jsonl</span><span class="desc">Every content change</span></div>
+      <div class="tree-item"><span class="icon">📄</span><span class="fname">references.jsonl</span><span class="desc">Source citations added</span></div>
+      <div class="tree-item"><span class="icon">📄</span><span class="fname">approvals.jsonl</span><span class="desc">Section sign-offs</span></div>
+      <div class="tree-item"><span class="icon">📄</span><span class="fname">versions.jsonl</span><span class="desc">Version milestones (v1.0, v1.1…)</span></div>
+      <div class="tree-item"><span class="icon">📄</span><span class="fname">ai-suggestions.jsonl</span><span class="desc">AI drafts submitted for review</span></div>
+      <div style="margin-top:12px;padding:10px;background:rgba(247,37,133,0.05);border-radius:6px;font-size:0.78em;color:var(--accent-audit);font-family:'JetBrains Mono',monospace">
+        append-only — the complete development history
+      </div>
+    </div>
+    <div class="tree-panel content-panel">
+      <h4>🔵 ransomware-ir/content/ — Current State</h4>
+      <div class="tree-item"><span class="icon">📋</span><span class="fname">playbook.yaml</span><span class="desc">Metadata, version, status</span></div>
+      <div class="tree-item"><span class="icon">📋</span><span class="fname">sections/*.yaml</span><span class="desc">Each section's current content</span></div>
+      <div class="tree-item"><span class="icon">📋</span><span class="fname">ref-index.yaml</span><span class="desc">All references with links</span></div>
+      <div style="margin-top:12px;padding:10px;background:rgba(76,201,240,0.05);border-radius:6px;font-size:0.78em;color:var(--accent-content);font-family:'JetBrains Mono',monospace">
+        ⟳ rebuild_content() — regenerate anytime from revisions/
+      </div>
+    </div>
+    <div class="tree-panel output-panel">
+      <h4>🟣 ransomware-ir/output/ — Rendered Deliverables</h4>
+      <div class="tree-item"><span class="icon">📄</span><span class="fname">Ransomware-IR-Playbook-v1.2.docx</span><span class="desc">Current Word document</span></div>
+      <div class="tree-item"><span class="icon">📄</span><span class="fname">drafts/*.md</span><span class="desc">Working drafts (markdown)</span></div>
+      <div class="tree-item"><span class="icon">📊</span><span class="fname">diagrams/*.mmd</span><span class="desc">Flow diagrams (Mermaid)</span></div>
+    </div>
+    <div class="tree-panel ref-panel">
+      <h4>🟢 reference/ — Industry Standards (Shared)</h4>
+      <div class="tree-item"><span class="icon">📚</span><span class="fname">nist-sp-800-61r3/excerpts/</span><span class="desc">Key sections as markdown</span></div>
+      <div class="tree-item"><span class="icon">📚</span><span class="fname">nist-sp-800-61r3/metadata.yaml</span><span class="desc">Title, version, URL, date</span></div>
+      <div class="tree-item"><span class="icon">📚</span><span class="fname">mandiant-ir/excerpts/</span><span class="desc">IR guide excerpts</span></div>
+      <div class="tree-item"><span class="icon">📚</span><span class="fname">sans-ih/excerpts/</span><span class="desc">Incident handler excerpts</span></div>
+      <div class="tree-item"><span class="icon">📚</span><span class="fname">ians/excerpts/</span><span class="desc">Research brief excerpts</span></div>
+      <div class="tree-item"><span class="icon">📚</span><span class="fname">org-doctrine/</span><span class="desc">Internal policies &amp; standards</span></div>
+      <div style="margin-top:12px;padding:10px;background:rgba(6,214,160,0.05);border-radius:6px;font-size:0.78em;color:var(--accent-green);font-family:'JetBrains Mono',monospace;line-height:1.6">
+        Key excerpts stored locally for AI · Full docs linked externally via metadata.yaml
+      </div>
+    </div>
+    <div class="tree-panel ai-panel">
+      <h4>🟡 ransomware-ir/ai-exchange/ — Air Gap</h4>
+      <div class="tree-item"><span class="icon">📤</span><span class="fname">to-ai/draft-request-*.md</span><span class="desc">Section drafting requests</span></div>
+      <div class="tree-item"><span class="icon">📥</span><span class="fname">from-ai/draft-*.md</span><span class="desc">AI-generated drafts</span></div>
+      <div style="margin-top:12px;padding:10px;background:rgba(252,163,17,0.05);border-radius:6px;font-size:0.78em;color:var(--accent-ai);font-family:'JetBrains Mono',monospace;line-height:1.6">
+        System builds request → Author directs AI → AI writes draft → Author reviews → Approved content committed to revision log
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Playbook Examples -->
+<div class="section-title"><span class="line"></span>EXAMPLE PLAYBOOKS<span class="line"></span></div>
+<div class="playbook-examples">
+  <div class="playbook-grid">
+    <div class="playbook-item">
+      <div class="pb-icon">🛡️</div>
+      <h4>Cyber Defense IR</h4>
+      <p>General-purpose incident response for enterprise network defense operations</p>
+    </div>
+    <div class="playbook-item">
+      <div class="pb-icon">💀</div>
+      <h4>Ransomware IR</h4>
+      <p>Ransomware-specific containment, negotiation considerations, and recovery</p>
+    </div>
+    <div class="playbook-item">
+      <div class="pb-icon">☁️</div>
+      <h4>Cloud IR</h4>
+      <p>Cloud-native incident response across AWS, Azure, GCP environments</p>
+    </div>
+    <div class="playbook-item">
+      <div class="pb-icon">🕵️</div>
+      <h4>IT Infiltrator</h4>
+      <p>Insider threat detection, investigation, and containment procedures</p>
+    </div>
+    <div class="playbook-item">
+      <div class="pb-icon">🤖</div>
+      <h4>Generative AI Attack IR</h4>
+      <p>Response to AI-enabled attacks including deepfakes, prompt injection, and model poisoning</p>
+    </div>
+    <div class="playbook-item">
+      <div class="pb-icon">🏦</div>
+      <h4>Third-Party / Supply Chain</h4>
+      <p>Response coordination when the compromise originates at a vendor or partner</p>
+    </div>
+  </div>
+</div>
+
+<!-- Design Principles -->
+<div class="section-title"><span class="line"></span>DESIGN PRINCIPLES — WHY YOU CAN TRUST THE PLAYBOOK<span class="line"></span></div>
+<div class="principles">
+  <div class="principle">
+    <div class="num">01</div>
+    <h4>Every Change is Permanent</h4>
+    <p>The revision log is append-only — every edit, every source added, every approval is permanently recorded. You can see exactly how the playbook evolved from first draft to final version.</p>
+  </div>
+  <div class="principle">
+    <div class="num">02</div>
+    <h4>Content is Always Rebuildable</h4>
+    <p>The current playbook content is computed by replaying the revision log. Delete the content files, rebuild them — identical result. The log is the truth; the content is the view.</p>
+  </div>
+  <div class="principle">
+    <div class="num">03</div>
+    <h4>Template Governs Structure</h4>
+    <p>Every playbook inherits from a shared template that enforces consistent headings, TOC structure, appendix ordering, and formatting. Change the template, re-render — all playbooks update.</p>
+  </div>
+  <div class="principle">
+    <div class="num">04</div>
+    <h4>Human-Gated AI</h4>
+    <p>The AI layer drafts and researches but never writes directly into the playbook. Every AI suggestion passes through human review before it enters the revision log. AI assists; authors decide.</p>
+  </div>
+  <div class="principle">
+    <div class="num">05</div>
+    <h4>Tamper-Evident</h4>
+    <p>SHA-256 hashes verify log integrity. If anyone modifies the revision history after the fact, the fingerprint changes — making tampering immediately detectable.</p>
+  </div>
+  <div class="principle">
+    <div class="num">06</div>
+    <h4>Citations Are First-Class</h4>
+    <p>References aren't footnotes added at the end — they're linked at the section level during authoring. Every claim in the playbook traces back to a specific source, section, and version.</p>
+  </div>
+</div>
+
+<div class="footer">
+  PB-ASSIST v1.0 — AI-Augmented Playbook Development · Append-Only Revision History · Human-Gated AI Drafting · Industry-Referenced · Template-Governed
+</div>
+
+</div>
+</body>
+</html>

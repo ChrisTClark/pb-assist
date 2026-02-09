@@ -1,0 +1,21 @@
+appendix_format:
+  numbering: letter
+  page_break_before: true
+  include_in_toc: true
+
+default_appendices:
+  - id: checklist
+    title: "Incident Response Checklist"
+    format: checklist
+  - id: contacts
+    title: "Key Contacts and Escalation Matrix"
+    format: table
+  - id: network
+    title: "Network Architecture Reference"
+    format: freeform
+  - id: evidence
+    title: "Evidence Collection Procedures"
+    format: numbered-steps
+  - id: regulatory
+    title: "Regulatory Notification Requirements"
+    format: table
